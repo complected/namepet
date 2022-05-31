@@ -35,6 +35,8 @@ const create = function create(db) {
 };
 
 // read
+
+// Note the `.all` and the table can accrete multiple rows of the same `nom`, for versioning.
 const get = function get(db, nom) {
   const getstmt = db.prepare(`SELECT 
                                 * 
