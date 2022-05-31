@@ -1,36 +1,95 @@
-const Database = require('better-sqlite3');
-const db = new Database('./.namepet/namepet.db', { verbose: console.log });
+import {
+  scry,
+  ubye,
+  ucat,
+  ustr,
+  pkey,
+  sign
+} from './coreword/coreword.js';
 
-// var table = db.prepare('CREATE TABLE namepet (\
-// 	                now TEXT  PRIMARY KEY,\
-//    	                ecr TEXT  NOT NULL,\
-//                     sig TEXT  NOT NULL,\
-//                     exp TEXT  NOT NULL,\
-//                     nom TEXT  NOT NULL,\
-//                     wat TEXT  NOT NULL,\
-// 	                dat TEXT  NOT NULL)');
+import Database from 'better-sqlite3';
 
-const addstmt = db.prepare('INSERT INTO namepet (now, ecr, sig, exp, nom, wat, dat) VALUES (?, ?, ?, ?, ?, ?, ?)');
-const getstmt = db.prepare('SELECT * FROM namepet WHERE nom = ?');
-const askstmt = db.prepare('SELECT * FROM namepet WHERE wat = ? AND dat = ?');
+const make = function make(path = "", verbose = null) {
+  // https://github.com/WiseLibs/better-sqlite3/blob/master/docs/api.md
+  return new Database(path, { verbose });
+};
 
-console.log(add("sig","exp","nom","wat","dat"))
-console.log(get("nom"))
-console.log(ask("wat","dat"))
+const create = function create(db) {
+  // https://www.sqlite.org/lang_createtable.html
+  const makestmt = db.prepare(`CREATE TABLE
+                               namepet 
+                               (
+                                 now TEXT NOT NULL,
+                                 ecr TEXT NOT NULL,
+                                 sig TEXT NOT NULL,
+                                 exp TEXT NOT NULL,
+                                 nom TEXT NOT NULL,
+                                 wat TEXT NOT NULL,
+                                 dat TEXT NOT NULL,
+                                 PRIMARY KEY (nom, now)
+                                 ON CONFLICT ROLLBACK
+                               )
+                             `
+  );
+  return makestmt.run();
+};
 
-function add(sig, exp, nom, wat, dat) {
-    //mask = hash(roll( ['namepet nametag' [exp, nom, wat, dat]] ))
-    //ok ecr = scry(sig, mask)
-    //need(ok)
-    var now = "now";
-    var ecr = "ecr";
-    addstmt.run(now, ecr, sig, exp, nom, wat, dat)
-  }
+// read
+const get = function get(db, nom) {
+  const getstmt = db.prepare(`SELECT 
+                                * 
+                              FROM 
+                                namepet
+                              WHERE
+                                nom = ?
+                                `
+  );
+  return getstmt.all(nom);
+};
 
-  function get(nom) {
-    getstmt.run(nom)
-  }
+const ask = function ask(db, txt) {
+  const askstmt = db.prepare(`SELECT 
+                                *
+                              FROM
+                                namepet
+                              WHERE
+                                now = @txt OR
+                                ecr = @txt OR
+                                sig = @txt OR
+                                exp = @txt OR
+                                nom = @txt OR
+                                wat = @txt OR
+                                dat = @txt
+                              `
+  );
+  return askstmt.all({ txt: txt });
+};
 
-  function ask(wat, dat) {
-    askstmt.run(wat,dat)
-  }
+// write
+const add = function add(db, key, sig, exp, nom, wat, dat) {
+  // https://www.sqlite.org/lang_datefunc.html
+  const addstmt = db.prepare(`INSERT INTO 
+                                namepet (now, ecr, sig, exp, nom, wat, dat) 
+                              VALUES
+                                (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), ?, ?, ?, ?, ?, ?)
+                              `
+  );
+  const msg = ucat([nom, wat, dat].map(s => ubye(s)));
+  const ecr_str = ustr(scry(msg, key, sig));
+  const sig_str = ustr(sig)
+  return addstmt.run(ecr_str, sig_str, exp, nom, wat, dat);
+};
+
+export {
+  scry,
+  ubye,
+  ucat,
+  ustr,
+  pkey,
+  sign,
+  make,
+  create,
+  get,
+  ask,
+  add,
+};

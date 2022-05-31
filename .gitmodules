@@ -1,0 +1,3 @@
+[submodule "coreword"]
+	path = coreword
+	url = https://github.com/nmushegian/coreword.git
