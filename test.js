@@ -55,4 +55,3 @@ test('invalid sig', async t => {
   const sig = ubye("forgery");
   t.throws(_ => add(db, pk, sig, "", "", "", ""), /(key do not match)|(signature missing v and recoveryParam)/);
 });                                                                    	
-                                                                       	
