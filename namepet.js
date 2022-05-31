@@ -68,6 +68,7 @@ const ask = function ask(db, txt) {
 };
 
 // write
+
 const add = function add(db, key, sig, exp, nom, wat, dat) {
   // https://www.sqlite.org/lang_datefunc.html
   const addstmt = db.prepare(`INSERT INTO 
