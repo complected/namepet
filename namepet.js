@@ -1,10 +1,10 @@
 import {
-  scry,
+  eip191Scry,
   ubye,
   ucat,
   ustr,
   pkey,
-  sign
+  eip191Sign
 } from './coreword/coreword.js';
 
 import Database from 'better-sqlite3';
@@ -78,18 +78,18 @@ const add = function add(db, key, sig, exp, nom, wat, dat) {
                               `
   );
   const msg = ucat([nom, wat, dat].map(s => ubye(s)));
-  const ecr_str = ustr(scry(msg, key, sig));
+  const ecr_str = ustr(eip191Scry(msg, key, sig));
   const sig_str = ustr(sig)
   return addstmt.run(ecr_str, sig_str, exp, nom, wat, dat);
 };
 
 export {
-  scry,
+  eip191Scry,
   ubye,
   ucat,
   ustr,
   pkey,
-  sign,
+  eip191Sign,
   make,
   create,
   get,

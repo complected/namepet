@@ -3,7 +3,7 @@ import { test } from 'tapzero';
 import {
   ucat,
   ustr,
-  sign,
+  eip191Sign,
   ubye,
   pkey,
   add,
@@ -26,7 +26,7 @@ test('make and use', async t => {
   const dat = ":free:vitalik:dai";
   const exp = "exp"
   const msg = ucat([nom, wat, dat].map(s => ubye(s)));
-  const sig = await sign(msg, sk);
+  const sig = await eip191Sign(msg, sk);
   t.ok(add(db, pk, sig, exp, nom, wat, dat), "add - should add");
   t.equal(get(db, nom)[0].nom, nom, "get - should be equal");
   // verify `ask`, by column
@@ -53,5 +53,6 @@ test('invalid sig', async t => {
   t.ok(db, "make - should make");
   t.ok(create(db), "create - should create");
   const sig = ubye("forgery");
-  t.throws(_ => add(db, pk, sig, "", "", "", ""), /key do not match/);
-});
+  t.throws(_ => add(db, pk, sig, "", "", "", ""), /(key do not match)|(signature missing v and recoveryParam)/);
+});                                                                    	
+                                                                       	
