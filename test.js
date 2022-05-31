@@ -24,7 +24,7 @@ test('make and use', async t => {
   const nom = `vitalik-${Math.floor(Math.random() * 10000)}`;
   const wat = "https://ethresear.ch";
   const dat = ":free:vitalik:dai";
-  const exp = "<exp>"
+  const exp = "exp"
   const msg = ucat([nom, wat, dat].map(s => ubye(s)));
   const sig = await sign(msg, sk);
   t.ok(add(db, pk, sig, exp, nom, wat, dat), "add - should add");
@@ -41,7 +41,7 @@ test('make and use', async t => {
     ([prop, expected]) => {
       test(`ask - prop: ${prop}`, t => {
         const answer = ask(db, nom);
-        t.equal(answer.length, 1, "ask - should be 1 record only");
+        t.equal(answer.length, 1, "ask - should return 1 record only");
         t.equal(answer[0][prop], expected, "ask - should be equal");
       });
     }
