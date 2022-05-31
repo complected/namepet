@@ -4,7 +4,9 @@
     "type": "module",
     "license": "AGPL-3.0",
     "dependencies": {
-        "better-sqlite3": "^7.5.3",
+        "better-sqlite3": "^7.5.3"
+    },
+    "devDependencies": {
         "tapzero": "^0.6.1"
     }
 }
