@@ -1,43 +1,40 @@
 import {
-  eip191Scry,
-  ubye,
-  ucat,
-  ustr,
-  pkey,
-  eip191Sign
-} from './coreword/coreword.js';
+  scry,
+} from './coreword/dist/word.js'
 
-import Database from 'better-sqlite3';
+import Database from 'better-sqlite3'
 
-const make = function make(path = "", verbose = null) {
-  // https://github.com/WiseLibs/better-sqlite3/blob/master/docs/api.md
-  return new Database(path, { verbose });
-};
+// https://github.com/WiseLibs/better-sqlite3/blob/master/docs/api.md
+export function make(path = "", verbose = null) {
+  return new Database(path, { verbose })
+}
 
-const create = function create(db) {
-  // https://www.sqlite.org/lang_createtable.html
+// https://www.sqlite.org/lang_createtable.html
+export function create(db) {
   const makestmt = db.prepare(`CREATE TABLE
                                namepet 
                                (
-                                 now TEXT NOT NULL,
+                                 wen TEXT NOT NULL,
                                  ecr TEXT NOT NULL,
                                  sig TEXT NOT NULL,
                                  exp TEXT NOT NULL,
                                  nom TEXT NOT NULL,
                                  wat TEXT NOT NULL,
                                  dat TEXT NOT NULL,
-                                 PRIMARY KEY (nom, now)
+
+                                 PRIMARY KEY (wen, ecr)
                                  ON CONFLICT ROLLBACK
                                )
                              `
-  );
-  return makestmt.run();
-};
+  )
+  return makestmt.run()
+}
 
 // read
 
-// Note the `.all` and the table can accrete multiple rows of the same `nom`, for versioning.
-const get = function get(db, nom) {
+// Note the `.all`.
+// The table can accrete multiple rows of same `nom`, potentially for usecases like versioning, but more importantly now, to retain all records.
+export function get(db, nom) {
   const getstmt = db.prepare(`SELECT 
                                 * 
                               FROM 
@@ -45,17 +42,17 @@ const get = function get(db, nom) {
                               WHERE
                                 nom = ?
                                 `
-  );
-  return getstmt.all(nom);
-};
+  )
+  return getstmt.all(nom)
+}
 
-const ask = function ask(db, txt) {
+export function ask(db, txt) {
   const askstmt = db.prepare(`SELECT 
                                 *
                               FROM
                                 namepet
                               WHERE
-                                now = @txt OR
+                                wen = @txt OR
                                 ecr = @txt OR
                                 sig = @txt OR
                                 exp = @txt OR
@@ -63,36 +60,22 @@ const ask = function ask(db, txt) {
                                 wat = @txt OR
                                 dat = @txt
                               `
-  );
-  return askstmt.all({ txt: txt });
-};
+  )
+  return askstmt.all({ txt: txt })
+}
 
 // write
 
-const add = function add(db, key, sig, exp, nom, wat, dat) {
+export function add(db, sig, exp, nom, wat, dat) {
   // https://www.sqlite.org/lang_datefunc.html
   const addstmt = db.prepare(`INSERT INTO 
-                                namepet (now, ecr, sig, exp, nom, wat, dat) 
+                                namepet (wen, ecr, sig, exp, nom, wat, dat) 
                               VALUES
                                 (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), ?, ?, ?, ?, ?, ?)
                               `
-  );
-  const msg = ucat([nom, wat, dat].map(s => ubye(s)));
-  const ecr_str = ustr(eip191Scry(msg, key, sig));
-  const sig_str = ustr(sig)
-  return addstmt.run(ecr_str, sig_str, exp, nom, wat, dat);
-};
-
-export {
-  eip191Scry,
-  ubye,
-  ucat,
-  ustr,
-  pkey,
-  eip191Sign,
-  make,
-  create,
-  get,
-  ask,
-  add,
-};
+  )
+  // IMPORTANT: assume provided strings are UTF-8 encoded.
+  const msg = Buffer.concat([nom, wat, dat].map(s => Buffer.from(s)))
+  const ecr = scry(msg, sig).toString()
+  return addstmt.run(ecr, sig.toString(), exp, nom, wat, dat)
+}

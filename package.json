@@ -8,5 +8,8 @@
     },
     "devDependencies": {
         "tapzero": "^0.6.1"
+    },
+    "scripts": {
+        "test": "cd coreword && tsc && cd ../ && node test.js"
     }
 }
