@@ -7,7 +7,10 @@ export function make(path = "", verbose = null) {
 
 // [1] documentation
 export function create(db) {
-  // [3] time values, [4] CONFLICT, [5] ROLLBACK, [6] PRIMARY KEY
+  // [3] time values
+  // [4] CONFLICT
+  // [5] ROLLBACK
+  // [6] PRIMARY KEY
   const makestmt = db.prepare(`CREATE TABLE
                                namepet 
                                (
