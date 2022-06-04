@@ -1,58 +1,42 @@
 import Database from 'better-sqlite3'
 
-// [2] documentation
 export function make(path = "", verbose = null) {
-  return new Database(path, { verbose })
+  const db = new Database(path, { verbose })
+  db.pragma('encoding=UTF8')
+  return db
 }
 
-// [1] documentation
 export function create(db) {
-  // [3] time values
-  // [4] CONFLICT
-  // [5] ROLLBACK
-  // [6] PRIMARY KEY
-  const makestmt = db.prepare(`CREATE TABLE
+  return db.prepare(`CREATE TABLE
                                namepet 
                                (
-                                 nom TEXT NOT NULL,
-                                 ecr TEXT NOT NULL,
-                                 sig TEXT NOT NULL,
-                                 dat TEXT NOT NULL,
-                                 wat TEXT NOT NULL,
-                                 wen TEXT NOT NULL,
-                                 exp TEXT NOT NULL,
-
-                                 PRIMARY KEY (nom, wen)
-                                 ON CONFLICT ROLLBACK
+                                 wen INTEGER NOT NULL,
+                                 ecr BLOB    NOT NULL,
+                                 sig BLOB    NOT NULL,
+                                 exp INTEGER NOT NULL,
+                                 nom TEXT    NOT NULL,
+                                 wat TEXT    NOT NULL,
+                                 dat TEXT    NOT NULL
                                )
                              `
-  )
-  return makestmt.run()
+  ).run()
 }
 
 
 /*
+
 References:
 
-1. https://www.sqlite.org/lang_createtable.html
+1. better-sqlite3 docs https://github.com/WiseLibs/better-sqlite3/blob/master/docs/api.md
 
-2. https://github.com/WiseLibs/better-sqlite3/blob/master/docs/api.md
+2. CREATE TABLE docs https://www.sqlite.org/lang_createtable.html
 
-3. On storing time values, SQLite does not have dedicated storage class
-for Date and Time. Instead, programmers can manipulate date and
-time values using the built-in functions. 
-https://www.sqlite.org/datatype3.html
+3.
 
-4. The idea of primary key can be expressed as part of the column's definition
-or as a table constraint. If there are multiple columns in the primary key
-definition, it must be expressed as a table constraint.
-https://www.sqlite.org/lang_createtable.html#primkeyconst
+a) Know that datatypes are dynamic in SQLite thus there are no type checks
+e.g. when inserting. https://www.sqlite.org/flextypegood.html
 
-5. ROLLBACK conflict resolution reverts the transaction when
-there is a e.g. Primary Key conflict, while the default ABORT reverts
-the effects of current SQL statement. While I do not expect concurrent client
-accesses at the moment, I prefer a stringent and hard-to-corrupt conflict resolution
-at this point.
-
-6. I choice (nom, wen), to enable versioning, for when the user updates the nom.
+b) SQLite does not have dedicated storage class for Date and Time but programmers can
+represent them in e.g. INTEGER or TEXT and use built-in functions to manipulate them.
+https://www.sqlite.org/datatype3.html#date_and_time_datatype
 */
