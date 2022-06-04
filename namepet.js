@@ -7,6 +7,7 @@ export function make(path = "", verbose = null) {
 }
 
 export function create(db) {
+  // Note types are optional. SQLite has "dynamic typing". [3][5]
   return db.prepare(`CREATE TABLE
                                namepet 
                                (
@@ -14,9 +15,9 @@ export function create(db) {
                                  ecr BLOB    NOT NULL,
                                  sig BLOB    NOT NULL,
                                  exp INTEGER NOT NULL,
-                                 nom TEXT    NOT NULL,
-                                 wat TEXT    NOT NULL,
-                                 dat TEXT    NOT NULL
+                                 nom BLOB    NOT NULL,
+                                 wat BLOB    NOT NULL,
+                                 dat BLOB    NOT NULL
                                )
                              `
   ).run()
@@ -31,12 +32,14 @@ References:
 
 2. CREATE TABLE docs https://www.sqlite.org/lang_createtable.html
 
-3.
-
-a) Know that datatypes are dynamic in SQLite thus there are no type checks
+3. Know that datatypes are dynamic in SQLite thus there are no type checks,
 e.g. when inserting. https://www.sqlite.org/flextypegood.html
 
-b) SQLite does not have dedicated storage class for Date and Time but programmers can
+4. SQLite does not have dedicated storage class for Date and Time but programmers can
 represent them in e.g. INTEGER or TEXT and use built-in functions to manipulate them.
 https://www.sqlite.org/datatype3.html#date_and_time_datatype
+
+5. BLOB is a column type that does not coerce data type, while e.g. inserting text
+into a NUMERIC is coerced into INTEGER or REAL depending on the text.
+https://www.sqlite.org/datatype3.html#type_affinity
 */
