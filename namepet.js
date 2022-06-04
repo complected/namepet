@@ -1,36 +1,54 @@
-const Database = require('better-sqlite3');
-const db = new Database('./.namepet/namepet.db', { verbose: console.log });
+import Database from 'better-sqlite3'
 
-// var table = db.prepare('CREATE TABLE namepet (\
-// 	                now TEXT  PRIMARY KEY,\
-//    	                ecr TEXT  NOT NULL,\
-//                     sig TEXT  NOT NULL,\
-//                     exp TEXT  NOT NULL,\
-//                     nom TEXT  NOT NULL,\
-//                     wat TEXT  NOT NULL,\
-// 	                dat TEXT  NOT NULL)');
+// [2] documentation
+export function make(path = "", verbose = null) {
+  return new Database(path, { verbose })
+}
 
-const addstmt = db.prepare('INSERT INTO namepet (now, ecr, sig, exp, nom, wat, dat) VALUES (?, ?, ?, ?, ?, ?, ?)');
-const getstmt = db.prepare('SELECT * FROM namepet WHERE nom = ?');
-const askstmt = db.prepare('SELECT * FROM namepet WHERE wat = ? AND dat = ?');
+// [1] documentation
+export function create(db) {
+  // [3] time values, [4] CONFLICT, [5] ROLLBACK, [6] PRIMARY KEY
+  const makestmt = db.prepare(`CREATE TABLE
+                               namepet 
+                               (
+                                 nom TEXT NOT NULL,
+                                 ecr TEXT NOT NULL,
+                                 sig TEXT NOT NULL,
+                                 dat TEXT NOT NULL,
+                                 wat TEXT NOT NULL,
+                                 wen TEXT NOT NULL,
+                                 exp TEXT NOT NULL,
 
-console.log(add("sig","exp","nom","wat","dat"))
-console.log(get("nom"))
-console.log(ask("wat","dat"))
+                                 PRIMARY KEY (nom, wen)
+                                 ON CONFLICT ROLLBACK
+                               )
+                             `
+  )
+  return makestmt.run()
+}
 
-function add(sig, exp, nom, wat, dat) {
-    //mask = hash(roll( ['namepet nametag' [exp, nom, wat, dat]] ))
-    //ok ecr = scry(sig, mask)
-    //need(ok)
-    var now = "now";
-    var ecr = "ecr";
-    addstmt.run(now, ecr, sig, exp, nom, wat, dat)
-  }
 
-  function get(nom) {
-    getstmt.run(nom)
-  }
+/*
+References:
 
-  function ask(wat, dat) {
-    askstmt.run(wat,dat)
-  }
+1. https://www.sqlite.org/lang_createtable.html
+
+2. https://github.com/WiseLibs/better-sqlite3/blob/master/docs/api.md
+
+3. On storing time values, SQLite does not hae dedicated storage class
+for Date and Time. Instead, programmers can manipulate date and
+time values using the built-in functions. 
+https://www.sqlite.org/datatype3.html
+
+4. The idea of primary key can be expressed as part of the column's definition
+or as a table constraint. If there are multiple columns in the primary key
+definition, it must be expressed as a table constraint.
+https://www.sqlite.org/lang_createtable.html#primkeyconst
+
+5. ROLLBACK conflict resolution reverts the transaction when
+there is a e.g. Primary Key conflict, while the default ABORT reverts
+the effects of current SQL statement. While I do not expect concurrent client
+accesses at the moment, I prefer a stringent and hard-to-corrupt conflict resolution.
+
+6. I choice (nom, wen), to enable versioning, for when the user updates the nom.
+*/

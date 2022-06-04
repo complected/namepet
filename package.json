@@ -2,7 +2,11 @@
     "name": "namepet",
     "version": "0.0.1",
     "license": "AGPL-3.0",
+    "type": "module",
     "dependencies": {
         "better-sqlite3": "^7.5.3"
+    },
+    "devDependencies": {
+        "tapzero": "^0.6.1"
     }
 }
