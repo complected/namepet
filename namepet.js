@@ -38,7 +38,7 @@ References:
 
 2. https://github.com/WiseLibs/better-sqlite3/blob/master/docs/api.md
 
-3. On storing time values, SQLite does not hae dedicated storage class
+3. On storing time values, SQLite does not have dedicated storage class
 for Date and Time. Instead, programmers can manipulate date and
 time values using the built-in functions. 
 https://www.sqlite.org/datatype3.html
@@ -51,7 +51,8 @@ https://www.sqlite.org/lang_createtable.html#primkeyconst
 5. ROLLBACK conflict resolution reverts the transaction when
 there is a e.g. Primary Key conflict, while the default ABORT reverts
 the effects of current SQL statement. While I do not expect concurrent client
-accesses at the moment, I prefer a stringent and hard-to-corrupt conflict resolution.
+accesses at the moment, I prefer a stringent and hard-to-corrupt conflict resolution
+at this point.
 
 6. I choice (nom, wen), to enable versioning, for when the user updates the nom.
 */
