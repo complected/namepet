@@ -39,6 +39,22 @@ export function add(db, sig, exp, nom, wat, dat) {
   return stmt.run({ ecr, sig, exp, nom, wat, dat })
 }
 
+export function ask(db, term) {
+  return db.prepare(`
+SELECT
+  *
+FROM
+  namepet
+WHERE
+  wen = :term OR
+  ecr = :term OR
+  sig = :term OR
+  exp = :term OR
+  nom = :term OR
+  wat = :term OR
+  dat = :term`).all({ term })
+}
+
 /*
 
 References:
